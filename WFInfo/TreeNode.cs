@@ -957,7 +957,7 @@ namespace WFInfo
             bool isInSet = Main.dataBase.equipmentData[dataRef] == null;
             string name = isInSet ? dataRef : dataRef + " Set";
             var rewardCollection = System.Threading.Tasks.Task.Run(() => 
-                    Main.listingHelper.GetRewardCollection(new List<string> {name}, false)
+                    Main.listingHelper.GetRewardCollection(new List<string> {name}, 0)
                 ).Result;
             
             Main.RunOnUIThread(() =>

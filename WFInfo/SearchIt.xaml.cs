@@ -55,7 +55,7 @@ namespace WFInfo
             {
                 var closest = Main.dataBase.GetPartNameHuman(searchField.Text, out _);
                 var primeRewards = new List<string> { closest };
-                var rewardCollection = Task.Run(() => Main.listingHelper.GetRewardCollection(primeRewards, false)).Result;
+                var rewardCollection = Task.Run(() => Main.listingHelper.GetRewardCollection(primeRewards, 0)).Result;
                 Main.listingHelper.ScreensList.Add(new KeyValuePair<string, RewardCollection>("", rewardCollection));
                 if (!Main.listingHelper.IsVisible)
                 {

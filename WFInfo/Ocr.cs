@@ -382,9 +382,9 @@ namespace WFInfo
                 var end = watch.ElapsedMilliseconds;
                 Main.StatusUpdate("Completed processing (" + (end - start) + "ms)", 0);
 
-                if (Main.listingHelper.PrimeRewards.Count == 0 || Main.listingHelper.PrimeRewards.Last().Except(primeRewards).ToList().Count != 0)
+                if (Main.listingHelper.PrimeRewards.Count == 0 || Main.listingHelper.PrimeRewards.Last().Key.Except(primeRewards).ToList().Count != 0)
                 {
-                    Main.listingHelper.PrimeRewards.Add(primeRewards);
+                    Main.listingHelper.PrimeRewards.Add(new KeyValuePair<List<string>, short>(primeRewards, Main.listingHelper.SelectedRewardIndex));
                 }
 
                 if (Settings.Highlight)
@@ -692,11 +692,12 @@ namespace WFInfo
                 }
 
                 numberOfRewardsDisplayed = tempAmountOfRewardsDisplayed;
+                short index = Main.listingHelper.PrimeRewards.Last().Value;
                 Main.listingHelper.PrimeRewards.RemoveAt(Main.listingHelper.PrimeRewards.Count - 1);
                 var msg = primeRewards.Aggregate("", (current, item) => current + $"{item}, ");
 
                 Main.AddLog($"Replacing the last entry as slow processing found another rewards: {msg} to list");
-                Main.listingHelper.PrimeRewards.Add(primeRewards);
+                Main.listingHelper.PrimeRewards.Add(new KeyValuePair<List<string>, short>(primeRewards, index));
 
                 if (Settings.Highlight)
                 {

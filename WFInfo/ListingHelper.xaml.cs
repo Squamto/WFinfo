@@ -19,7 +19,7 @@ namespace WFInfo
     {
 
         public List<KeyValuePair<string, RewardCollection>> ScreensList { get; set; } = new List<KeyValuePair<string, RewardCollection>>();
-        public List<List<string>> PrimeRewards { get; set; } = new List<List<string>>();
+        public List<KeyValuePair<List<string>, short>> PrimeRewards { get; set; } = new List<KeyValuePair<List<string>, short>>();
         //Helper, allowing to store the rewards until needed to be processed
         private int PageIndex { get; set; } = 0;
         private bool updating;
@@ -101,7 +101,7 @@ namespace WFInfo
                 }
                 catch (Exception exception)
                 {
-                    Main.AddLog($"Error thrown in NextScreen in ListingHelper.xaml.cs: {exception}, Primerewarwds.count: {PrimeRewards.Count}, SelectedRewardIndex {SelectedRewardIndex}");
+                    Main.AddLog($"Error thrown in NextScreen in ListingHelper.xaml.cs: {exception}, PrimeRewards.count: {PrimeRewards.Count}");
                     throw;
                 }
             }
@@ -311,20 +311,18 @@ namespace WFInfo
 
         #endregion
 
+        public RewardCollection GetRewardCollection(KeyValuePair<List<string>, short> reward) =>
+            GetRewardCollection(reward.Key, reward.Value);
+
         /// <summary>
         /// returns the data for an entire "Create listing" screen
         /// </summary>
         /// <param name="primeNames">The human friendly name to search listings for</param>
         /// <returns>the data for an entire "Create listing" screen</returns>
-        public RewardCollection GetRewardCollection(List<string> primeNames, bool useRewardIndex = true)
+        public RewardCollection GetRewardCollection(List<string> primeNames, short index)
         {
             var platinumValues = new List<short>(4);
             var marketListings = new List<List<MarketListing>>(5);
-            var index = (short)0;
-            if (useRewardIndex) {
-                index = SelectedRewardIndex;
-                SelectedRewardIndex = 0;
-            }
 
             if (primeNames == null)
             {
