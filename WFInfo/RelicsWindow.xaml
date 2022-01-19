@@ -169,6 +169,7 @@
                         <ComboBoxItem Content="Average intact plat" />
                         <ComboBoxItem Content="Average radiant plat" />
                         <ComboBoxItem Content="Difference (radiant-intact)" />
+                        <ComboBoxItem Content="Average intact ducat" />
 
                     </ComboBox>
                 </Border>

@@ -215,39 +215,47 @@ namespace WFInfo
             Col2_Img1_Shown = "Hidden";
         }
 
-        public void SetEraText()
+        public void SetEraText(bool useDucats = true)
         {
             _intact = 0;
             _radiant = 0;
+            _ducat = 0;
+            _owned_ducat = 0;
+
+            double intactDucatPerPlat = 0;
+            double radiantDucatPerPlat = 0;
 
             foreach (TreeNode node in Children)
             {
 
                 if (node.IsVaulted()) // IsVaulted is true if its not vaulted
                 {
-                    _intact += node._intact; 
-                    _radiant += node._radiant; 
-
+                    _intact = Math.Max(_intact, node._intact);
+                    _radiant = Math.Max(_radiant, node._radiant);
+                    _ducat = Math.Max(_ducat, node._ducat);
+                    _owned_ducat = Math.Max(_owned_ducat, node._owned_ducat);
+                    intactDucatPerPlat = Math.Max(intactDucatPerPlat, node._ducat/node._intact);
+                    radiantDucatPerPlat = Math.Max(radiantDucatPerPlat, node._owned_ducat/node._radiant);
                 }
             }
 
             _bonus = _radiant - _intact;
+            _diff = _owned_ducat - _ducat;
 
-            Col1_Text1 = "INT:";
-            Col1_Text2 = _intact.ToString("F1");
+            Grid_Shown = "Visible";
+
+            Col1_Text1 = $"{_intact.ToString("F1")}";
+            Col1_Text2 = $"{_radiant.ToString("F1")}";
 
             Col1_Img1 = PLAT_SRC;
             Col1_Img1_Shown = "Visible";
 
-            Col2_Text1 = "RAD:";
-            Col2_Text2 = _radiant.ToString("F1");
-            int tempBonus = (int)(_bonus * 10);
-            Col2_Text3 = "(";
-            if (tempBonus >= 0)
-                Col2_Text3 += "+";
-            Col2_Text3 += (tempBonus / 10.0).ToString("F1") + ")";
 
-            Col2_Img1 = PLAT_SRC;
+            Col2_Text1 = $"{_ducat.ToString("F1")}({intactDucatPerPlat.ToString("F1")})";
+            Col2_Text2 = $"{_owned_ducat.ToString("F1")}";
+            Col2_Text3 = $"({radiantDucatPerPlat.ToString("F1")})";
+
+            Col2_Img1 = DUCAT_SRC;
             Col2_Img1_Shown = "Visible";
 
         }
@@ -255,44 +263,54 @@ namespace WFInfo
         {
             _intact = 0;
             _radiant = 0;
+            _ducat = 0;
+            _owned_ducat = 0;
 
             foreach (TreeNode node in Children)
             {
                 if (node.NameColor == RARE_COLOR)
                 {
-                    _intact += INTACT_CHANCE_RARE * node._plat;
+                    _intact  += INTACT_CHANCE_RARE * node._plat;
                     _radiant += RADIANT_CHANCE_RARE * node._plat;
+                    _ducat   += INTACT_CHANCE_RARE * node._ducat;
+                    _owned_ducat += RADIANT_CHANCE_RARE * node._ducat;
                 }
                 else if (node.NameColor == UNCOMMON_COLOR)
                 {
-                    _intact += INTACT_CHANCE_UNCOMMON * node._plat;
+                    _intact  += INTACT_CHANCE_UNCOMMON * node._plat;
                     _radiant += RADIANT_CHANCE_UNCOMMON * node._plat;
+                    _ducat   += INTACT_CHANCE_UNCOMMON * node._ducat;
+                    _owned_ducat += RADIANT_CHANCE_RARE * node._ducat;
                 }
                 else
                 {
-                    _intact += INTACT_CHANCE_COMMON * node._plat;
+                    _intact  += INTACT_CHANCE_COMMON * node._plat;
                     _radiant += RADIANT_CHANCE_COMMON * node._plat;
+                    _ducat += INTACT_CHANCE_COMMON * node._ducat;
+                    _owned_ducat += RADIANT_CHANCE_RARE * node._ducat;
                 }
             }
 
             _bonus = _radiant - _intact;
+            int tempBonus = (int)(_bonus * 10);
+            _diff = _owned_ducat - _ducat;
+
             Grid_Shown = "Visible";
 
-            Col1_Text1 = "INT:";
-            Col1_Text2 = _intact.ToString("F1");
+            Col1_Text1 = $"{_intact.ToString("F1")}|{_radiant.ToString("F1")}";
+            Col1_Text2 = $"{(tempBonus >= 0 ? "+" : "")}{(tempBonus/10.0).ToString("F1")}";
 
             Col1_Img1 = PLAT_SRC;
             Col1_Img1_Shown = "Visible";
 
-            Col2_Text1 = "RAD:";
-            Col2_Text2 = _radiant.ToString("F1");
-            int tempBonus = (int)(_bonus * 10);
-            Col2_Text3 = "(";
-            if (tempBonus >= 0)
-                Col2_Text3 += "+";
-            Col2_Text3 += (tempBonus / 10.0).ToString("F1") + ")";
 
-            Col2_Img1 = PLAT_SRC;
+            tempBonus = (int)(_diff * 10);
+
+            Col2_Text1 = $"{_ducat.ToString("F1")}({(_ducat/_intact).ToString("F1")})";
+            Col2_Text2 = $"{(tempBonus >= 0 ? "+" : "")}{(tempBonus/10.0).ToString("F1")}";
+            Col2_Text3 = $"{_owned_ducat.ToString("F1")}({(_owned_ducat / _radiant).ToString("F1")})";
+
+            Col2_Img1 = DUCAT_SRC;
             Col2_Img1_Shown = "Visible";
         }
 
@@ -524,6 +542,7 @@ namespace WFInfo
                             // 1 - Average intact plat
                             // 2 - Average radiant plat
                             // 3 - Difference (radiant-intact)
+                            // 4 . Average intact ducat
                             case 1:
                                 Children = Children.OrderByDescending(p => p._intact).ToList();
                                 ChildrenFiltered = ChildrenFiltered.OrderByDescending(p => p._intact).ToList();
@@ -535,6 +554,10 @@ namespace WFInfo
                             case 3:
                                 Children = Children.OrderByDescending(p => p._bonus).ToList();
                                 ChildrenFiltered = ChildrenFiltered.OrderByDescending(p => p._bonus).ToList();
+                                break;
+                            case 4:
+                                Children = Children.AsParallel().OrderByDescending(p => p._ducat).ToList();
+                                ChildrenFiltered = ChildrenFiltered.AsParallel().OrderByDescending(p => p._ducat).ToList();
                                 break;
                             default:
                                 Children = Children.OrderBy(p => PadNumbers(p.Name)).ToList();
@@ -672,8 +695,8 @@ namespace WFInfo
 
         public string List_Button_Text => Plat_Val > 0 ? "M" : "";
 
-        private int _ducat = 0;
-        public int Ducat_Val
+        private double _ducat = 0;
+        public double Ducat_Val
         {
             get { return _ducat; }
             set { SetField(ref _ducat, value); }

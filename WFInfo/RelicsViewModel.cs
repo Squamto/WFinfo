@@ -91,6 +91,7 @@ namespace WFInfo
             // 1 - Average intact plat
             // 2 - Average radiant plat
             // 3 - Difference (radiant-intact)
+            // 4 - Average intact ducats
         
             foreach (TreeNode era in _rawRelicNodes)
             {
@@ -112,6 +113,9 @@ namespace WFInfo
                         break;
                     case 3:
                         RelicsItemsView.SortDescriptions.Add(new System.ComponentModel.SortDescription("Bonus_Val", System.ComponentModel.ListSortDirection.Descending));
+                        break;
+                    case 4:
+                        RelicsItemsView.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ducat_Val", System.ComponentModel.ListSortDirection.Descending));
                         break;
                     default:
                         RelicsItemsView.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name_Sort", System.ComponentModel.ListSortDirection.Ascending));
